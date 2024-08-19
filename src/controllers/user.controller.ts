@@ -7,6 +7,10 @@ class UserController {
     try {
       const users = await db.users.findMany();
 
+      if (users.length === 0) {
+        return res.status(400).json({success: false, msg: "Nenhum usuário encontrado"});
+      }
+
       return res.status(200).json({success: true, msg: "Lista de usuários.", data: users});
     } catch (error) {
       console.log(error);
@@ -50,7 +54,11 @@ class UserController {
       });
 
       if (user) {
-        return res.status(200).json({success: true, msg: "Informações de usuário.", data: user});
+        return res.status(200).json({
+          success: true,
+          msg: "Informações de usuário.",
+          data: {id: user.id, name: user.name, email: user.email, username: user.username},
+        });
       }
 
       return res.status(404).json({success: false, msg: "Usuário não encontrado."});
@@ -85,11 +93,18 @@ class UserController {
           data: {name, email, username, password: hash},
         });
 
-        return res.status(200).json({
-          success: true,
-          msg: "Usuário criado com sucesso.",
-          data: {id: updatedUser.id, name: updatedUser.name, email: updatedUser.email, username: updatedUser.username},
-        });
+        if (updatedUser) {
+          return res.status(200).json({
+            success: true,
+            msg: "Usuário atualizado com sucesso.",
+            data: {
+              id: updatedUser.id,
+              name: updatedUser.name,
+              email: updatedUser.email,
+              username: updatedUser.username,
+            },
+          });
+        }
       }
 
       return res.status(400).json({success: false, msg: "Usuário não atualizado."});
