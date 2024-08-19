@@ -10,7 +10,7 @@ class TweetController {
         return res.status(400).json({success: false, msg: "Nenhum tweet encontrado"});
       }
 
-      return res.status(200).json({success: true, msg: "Lista de usuários.", data: tweets});
+      return res.status(200).json({success: true, msg: "Lista de tweets.", data: tweets});
     } catch (error) {
       console.log(error);
       return res.status(500).json({success: false, msg: "ERROR Database."});
