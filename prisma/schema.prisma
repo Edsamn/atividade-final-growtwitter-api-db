@@ -70,6 +70,8 @@ model Likes {
 model Replies {
   id String @id @default(uuid()) @db.Uuid
   userId String @db.Uuid @map("user_id")
+  content String @db.VarChar(255)
+  type Type @default(R)
   user Users @relation(fields: [userId], references: [id])
   tweetId String @db.Uuid @map("tweet_id")
   tweet Tweets @relation(fields: [tweetId], references: [id])

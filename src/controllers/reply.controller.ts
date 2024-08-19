@@ -1,16 +1,16 @@
 import {Request, Response} from "express";
 import db from "../database/prisma.connection";
 
-class TweetController {
+class ReplyController {
   public async list(req: Request, res: Response) {
     try {
-      const tweets = await db.tweets.findMany();
+      const replies = await db.replies.findMany();
 
-      if (tweets.length === 0) {
-        return res.status(400).json({success: false, msg: "Nenhum tweet encontrado"});
+      if (replies.length === 0) {
+        return res.status(400).json({success: false, msg: "Nenhuma resposta encontrado"});
       }
 
-      return res.status(200).json({success: true, msg: "Lista de tweets.", data: tweets});
+      return res.status(200).json({success: true, msg: "Lista de tweets.", data: replies});
     } catch (error) {
       console.log(error);
       return res.status(500).json({success: false, msg: "ERROR Database."});
@@ -18,22 +18,22 @@ class TweetController {
   }
 
   public async create(req: Request, res: Response) {
-    const {content, userId} = req.body;
+    const {content, userId, tweetId} = req.body;
 
     try {
-      if (!content || !userId) {
+      if (!content || !userId || !tweetId) {
         return res.status(400).json({success: false, msg: "Preencha todos os campos."});
       }
 
-      const newTweet = await db.tweets.create({
-        data: {content, userId},
+      const newReply = await db.replies.create({
+        data: {content, userId, tweetId},
       });
 
-      if (newTweet) {
+      if (newReply) {
         return res.status(200).json({
           success: true,
-          msg: "Tweet enviado com sucesso.",
-          data: {id: newTweet.id, content: newTweet.content},
+          msg: "Tweet respondido com sucesso.",
+          data: {id: newReply.id, content: newReply.content},
         });
       }
     } catch (error) {
@@ -46,35 +46,29 @@ class TweetController {
     const {id} = req.params;
 
     try {
-      const tweet = await db.tweets.findUnique({
+      const reply = await db.replies.findUnique({
         where: {id},
         include: {
           user: {
-            select: {id: true, name: true, username: true},
+            select: {id: true, username: true},
           },
-          Likes: {
-            select: {
-              userId: true,
-            },
-          },
-          Replies: {
+          tweet: {
             select: {
               content: true,
-              userId: true,
             },
           },
         },
       });
 
-      if (tweet) {
+      if (reply) {
         return res.status(200).json({
           success: true,
-          msg: "Informações do tweet.",
-          data: tweet,
+          msg: "Informações da resposta.",
+          data: reply,
         });
       }
 
-      return res.status(404).json({success: false, msg: "Tweet não encontrado."});
+      return res.status(404).json({success: false, msg: "Resposta não encontrado."});
     } catch (error) {
       console.log(error);
       return res.status(500).json({success: false, msg: "ERROR Database."});
@@ -86,12 +80,12 @@ class TweetController {
     const {content} = req.body;
 
     try {
-      const tweet = await db.tweets.findUnique({
+      const reply = await db.replies.findUnique({
         where: {id},
       });
 
-      if (!tweet) {
-        return res.status(404).json({success: false, msg: "Tweet não encontrado."});
+      if (!reply) {
+        return res.status(404).json({success: false, msg: "Resposta não encontrada."});
       }
 
       if (!content) {
@@ -99,24 +93,24 @@ class TweetController {
       }
 
       if (content) {
-        const updatedTweet = await db.tweets.update({
+        const updatedReply = await db.replies.update({
           where: {id},
           data: {content},
         });
 
-        if (updatedTweet) {
+        if (updatedReply) {
           return res.status(200).json({
             success: true,
-            msg: "Tweet editado.",
+            msg: "Resposta editada.",
             data: {
-              id: updatedTweet.id,
-              content: updatedTweet.content,
+              id: updatedReply.id,
+              content: updatedReply.content,
             },
           });
         }
       }
 
-      return res.status(400).json({success: false, msg: "Tweet não editado."});
+      return res.status(400).json({success: false, msg: "Resposta não editada."});
     } catch (error) {
       console.log(error);
       return res.status(500).json({success: false, msg: "ERROR Database."});
@@ -127,22 +121,22 @@ class TweetController {
     const {id} = req.params;
 
     try {
-      const tweet = await db.tweets.findUnique({
+      const reply = await db.replies.findUnique({
         where: {id},
       });
 
-      if (tweet) {
-        await db.tweets.delete({
+      if (reply) {
+        await db.replies.delete({
           where: {id},
         });
 
         return res.status(200).json({
           success: true,
-          msg: "Tweet apagado com sucesso.",
+          msg: "Resposta apagada com sucesso.",
         });
       }
 
-      return res.status(404).json({success: false, msg: "Tweet não encontrado."});
+      return res.status(404).json({success: false, msg: "Resposta não encontrada."});
     } catch (error) {
       console.log(error);
       return res.status(500).json({success: false, msg: "ERROR Database."});
@@ -150,4 +144,4 @@ class TweetController {
   }
 }
 
-export default TweetController;
+export default ReplyController;
