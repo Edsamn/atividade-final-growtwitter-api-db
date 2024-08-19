@@ -84,7 +84,6 @@ model Replies {
 
 model Followers {
   id String @id @default(uuid()) @db.Uuid
-  userId String @db.Uuid @map("user_id")
   followerId String @db.Uuid @map("follower_id")
   follower Users @relation("follower", fields: [followerId], references: [id])
   followingId String @db.Uuid @map("following_id")
