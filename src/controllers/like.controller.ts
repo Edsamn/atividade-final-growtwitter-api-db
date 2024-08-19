@@ -38,6 +38,10 @@ class LikeController {
         return res.status(400).json({success: false, msg: "É necessário informar o usuário e o tweet."});
       }
 
+      const user = await db.users.findUnique({
+        where: {id: userId},
+      });
+
       const newLike = await db.likes.create({
         data: {userId, tweetId},
       });
@@ -45,7 +49,7 @@ class LikeController {
       if (newLike) {
         return res.status(200).json({
           success: true,
-          msg: "Tweet curtido.",
+          msg: `${user?.username} curtiu.`,
           data: {id: newLike.id, userId: newLike.userId, tweetId: newLike.tweetId},
         });
       }

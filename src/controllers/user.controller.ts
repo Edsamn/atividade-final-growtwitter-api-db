@@ -5,7 +5,14 @@ import generateHash from "../utils/generateHash";
 class UserController {
   public async list(req: Request, res: Response) {
     try {
-      const users = await db.users.findMany();
+      const users = await db.users.findMany({
+        select: {
+          id: true,
+          username: true,
+          name: true,
+          email: true,
+        },
+      });
 
       if (users.length === 0) {
         return res.status(400).json({success: false, msg: "Nenhum usuário encontrado"});

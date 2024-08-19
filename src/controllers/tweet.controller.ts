@@ -127,7 +127,7 @@ class TweetController {
 
         return res.status(200).json({
           success: true,
-          msg: "Tweet deletado com sucesso.",
+          msg: "Tweet apagado com sucesso.",
         });
       }
 
