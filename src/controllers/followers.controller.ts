@@ -2,7 +2,7 @@ import {Request, Response} from "express";
 import db from "../database/prisma.connection";
 
 class FollowController {
-  public async list(req: Request, res: Response) {
+  public async show(req: Request, res: Response) {
     const {userId} = req.params;
 
     try {
