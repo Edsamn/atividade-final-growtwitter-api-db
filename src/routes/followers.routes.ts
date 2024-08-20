@@ -5,7 +5,8 @@ const routes = () => {
   const router = Router();
   const controller = new FollowerController();
 
-  router.get("/:userId", controller.show);
+  router.get("/", controller.list);
+  router.get("/:id", controller.show);
   router.post("/", controller.create);
   router.delete("/:id", controller.delete);
 

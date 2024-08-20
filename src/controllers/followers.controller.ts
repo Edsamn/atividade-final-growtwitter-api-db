@@ -2,49 +2,36 @@ import {Request, Response} from "express";
 import db from "../database/prisma.connection";
 
 class FollowController {
+  public async list(req: Request, res: Response) {
+    try {
+      const follows = await db.followers.findMany({
+        select: {
+          id: true,
+          followerId: true,
+          followingId: true,
+        },
+      });
+
+      return res.status(200).json({success: true, msg: "Lista de follows.", data: follows});
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({success: false, msg: "ERROR Database."});
+    }
+  }
+
   public async show(req: Request, res: Response) {
-    const {userId} = req.params;
+    const {id} = req.params;
 
     try {
-      const followers = await db.users.findUnique({
-        where: {id: userId},
+      const follow = await db.followers.findUnique({
+        where: {id},
         select: {
-          Followers: {
-            include: {
-              follower: {
-                select: {
-                  username: true,
-                },
-              },
-            },
-          },
+          followerId: true,
+          followingId: true,
         },
       });
 
-      const following = await db.users.findUnique({
-        where: {id: userId},
-        select: {
-          Following: {
-            include: {
-              following: {
-                select: {
-                  username: true,
-                },
-              },
-            },
-          },
-        },
-      });
-
-      if (!followers) {
-        return res.status(400).json({success: false, msg: "Você não possui seguidores."});
-      }
-
-      if (!following) {
-        return res.status(400).json({success: false, msg: "Você não segue ninguém."});
-      }
-
-      return res.status(200).json({success: true, msg: "Lista de seguidores e seguidos.", data: followers, following});
+      return res.status(200).json({success: true, msg: "Dados desta seguida.", data: follow});
     } catch (error) {
       console.log(error);
       return res.status(500).json({success: false, msg: "ERROR Database."});
@@ -57,13 +44,24 @@ class FollowController {
     try {
       const follower = await db.users.findUnique({
         where: {id: followerId},
+        select: {id: true, username: true},
       });
 
       const following = await db.users.findUnique({
         where: {id: followingId},
+        select: {
+          id: true,
+          username: true,
+          Following: {
+            select: {
+              followingId: true,
+            },
+          },
+        },
       });
+
       if (!followerId || !followingId) {
-        return res.status(400).json({success: false, msg: "É necessário informar o usuário e quem será seguido."});
+        return res.status(400).json({success: false, msg: "É necessário informar o seguidor e quem será seguido."});
       }
 
       if (followerId === followingId) {

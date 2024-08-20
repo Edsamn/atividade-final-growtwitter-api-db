@@ -42,6 +42,30 @@ class LikeController {
         where: {id: userId},
       });
 
+      const tweet = await db.tweets.findUnique({
+        where: {id: tweetId},
+        select: {id: true},
+      });
+
+      const alreadyLiked = await db.users.findUnique({
+        where: {id: userId},
+        select: {
+          Likes: {
+            select: {
+              tweetId: true,
+            },
+          },
+        },
+      });
+
+      if (alreadyLiked && tweet) {
+        const isLiked = alreadyLiked.Likes.some((like) => like.tweetId === tweet.id);
+
+        if (isLiked) {
+          return res.status(400).json({success: false, msg: "Você já curtiu este tweet."});
+        }
+      }
+
       const newLike = await db.likes.create({
         data: {userId, tweetId},
       });
