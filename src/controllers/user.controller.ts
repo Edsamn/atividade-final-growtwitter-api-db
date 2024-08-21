@@ -11,6 +11,7 @@ class UserController {
           username: true,
           name: true,
           email: true,
+          token: true,
         },
       });
 
